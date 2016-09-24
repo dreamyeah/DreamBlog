@@ -39,13 +39,13 @@ app.add_url_rule('/docs/<version>/.latex/Flask.pdf', endpoint='docs.pdf',
 from blog.views import general
 from blog.views import community
 from blog.views import mailinglist
-from blog.views import snippets
+# from blog.views import snippets
 from blog.views import extensions
 from blog.views import posts
 app.register_blueprint(general.mod)
 app.register_blueprint(community.mod)
 app.register_blueprint(mailinglist.mod)
-app.register_blueprint(snippets.mod)
+# app.register_blueprint(snippets.mod)
 app.register_blueprint(extensions.mod)
 app.register_blueprint(posts.mod)
 

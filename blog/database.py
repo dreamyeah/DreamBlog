@@ -63,69 +63,69 @@ class Category(Model):
 
     @cached_property
     def count(self):
-        return self.snippets.count()
+        return self.posts.count()
 
     @property
     def url(self):
-        return url_for('snippets.category', slug=self.slug)
+        return url_for('posts.category', slug=self.slug)
 
 
-class Snippet(Model, search.Indexable):
-    __tablename__ = 'snippets'
-    id = Column('snippet_id', Integer, primary_key=True)
-    author_id = Column(Integer, ForeignKey('users.user_id'))
-    category_id = Column(Integer, ForeignKey('categories.category_id'))
-    title = Column(String(200))
-    body = Column(String(4000))
-    pub_date = Column(DateTime)
-
-    author = relation(User, backref=backref('snippets', lazy='dynamic'))
-    category = relation(Category, backref=backref('snippets', lazy='dynamic'))
-
-    search_document_kind = 'snippet'
-
-    def __init__(self, author, title, body, category):
-        self.author = author
-        self.title = title
-        self.body = body
-        self.category = category
-        self.pub_date = datetime.utcnow()
-
-    def to_json(self):
-        return dict(id=self.id, title=self.title,
-                    body=unicode(self.rendered_body),
-                    pub_date=http_date(self.pub_date),
-                    comments=[c.to_json() for c in self.comments],
-                    author=self.author.to_json(),
-                    category=self.category.slug)
-
-    def get_search_document(self):
-        return dict(
-            id=unicode(self.id),
-            title=self.title,
-            keywords=[self.category.name],
-            content=self.body
-        )
-
-    @classmethod
-    def describe_search_result(cls, result):
-        obj = cls.query.get(int(result['id']))
-        if obj is not None:
-            text = obj.rendered_body.striptags()
-            return Markup(result.highlights('content', text=text)) or None
-
-    @property
-    def url(self):
-        return url_for('snippets.show', id=self.id)
-
-    @property
-    def rendered_body(self):
-        from blog.utils import format_creole
-        return format_creole(self.body)
+# class Snippet(Model, search.Indexable):
+#     __tablename__ = 'snippets'
+#     id = Column('snippet_id', Integer, primary_key=True)
+#     author_id = Column(Integer, ForeignKey('users.user_id'))
+#     category_id = Column(Integer, ForeignKey('categories.category_id'))
+#     title = Column(String(200))
+#     body = Column(String(4000))
+#     pub_date = Column(DateTime)
+# 
+#     author = relation(User, backref=backref('snippets', lazy='dynamic'))
+#     category = relation(Category, backref=backref('snippets', lazy='dynamic'))
+# 
+#     search_document_kind = 'snippet'
+# 
+#     def __init__(self, author, title, body, category):
+#         self.author = author
+#         self.title = title
+#         self.body = body
+#         self.category = category
+#         self.pub_date = datetime.utcnow()
+# 
+#     def to_json(self):
+#         return dict(id=self.id, title=self.title,
+#                     body=unicode(self.rendered_body),
+#                     pub_date=http_date(self.pub_date),
+#                     comments=[c.to_json() for c in self.comments],
+#                     author=self.author.to_json(),
+#                     category=self.category.slug)
+# 
+#     def get_search_document(self):
+#         return dict(
+#             id=unicode(self.id),
+#             title=self.title,
+#             keywords=[self.category.name],
+#             content=self.body
+#         )
+# 
+#     @classmethod
+#     def describe_search_result(cls, result):
+#         obj = cls.query.get(int(result['id']))
+#         if obj is not None:
+#             text = obj.rendered_body.striptags()
+#             return Markup(result.highlights('content', text=text)) or None
+# 
+#     @property
+#     def url(self):
+#         return url_for('snippets.show', id=self.id)
+# 
+#     @property
+#     def rendered_body(self):
+#         from blog.utils import format_creole
+#         return format_creole(self.body)
 
 class Post(Model, search.Indexable):
     __tablename__ = 'posts'
-    id = Column('id', Integer, primary_key=True)
+    id = Column('post_id', Integer, primary_key=True)
     author_id = Column(Integer, ForeignKey('users.user_id'))
     category_id = Column(Integer, ForeignKey('categories.category_id'))
     title = Column(String(200))
@@ -183,17 +183,17 @@ class Post(Model, search.Indexable):
 class Comment(Model):
     __tablename__ = 'comments'
     id = Column('comment_id', Integer, primary_key=True)
-    snippet_id = Column(Integer, ForeignKey('snippets.snippet_id'))
+    post_id = Column(Integer, ForeignKey('posts.post_id'))
     author_id = Column(Integer, ForeignKey('users.user_id'))
     title = Column(String(200))
     text = Column(String(4000))
     pub_date = Column(DateTime)
 
-    snippet = relation(Snippet, backref=backref('comments', lazy=True))
+    post = relation(Post, backref=backref('comments', lazy=True))
     author = relation(User, backref=backref('comments', lazy='dynamic'))
 
-    def __init__(self, snippet, author, title, text):
-        self.snippet = snippet
+    def __init__(self, post, author, title, text):
+        self.snippet = post
         self.author = author
         self.title = title
         self.text = text

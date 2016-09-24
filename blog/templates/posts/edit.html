@@ -5,12 +5,12 @@
     h1 { background-image: url(/static/edit-snippet.png); }
   </style>
 {% endblock %}
-{% block title %}Edit Snippet “{{ snippet.title }}”{% endblock %}
+{% block title %}Edit Posts “{{ post.title }}”{% endblock %}
 {% block body %}
   <script type=text/javascript>
     $(function() {
       $('input[name="delete"]').click(function() {
-        if (!confirm("Do you really want to delete this Snippet?\n\n" +
+        if (!confirm("Do you really want to delete this Post?\n\n" +
                      "THIS CANNOT BE UNDONE!"))
           return false;
       });

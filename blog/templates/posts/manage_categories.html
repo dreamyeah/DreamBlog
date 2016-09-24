@@ -1,5 +1,5 @@
 {% extends "posts/layout.html" %}
-{% block title %}Snippets Archive{% endblock %}
+{% block title %}Posts Archive{% endblock %}
 {% block body %}
   <h2>Manage Categories</h2>
   {% if categories %}
@@ -14,7 +14,7 @@
       <tr>
         <td><input type=text name=name.{{ category.id }} value="{{ category.name }}" size=24>
         <td><input type=text name=slug.{{ category.id }} value="{{ category.slug }}" size=17>
-        <td>{{ category.snippets.count() }}
+        <td>{{ category.posts.count() }}
         <td><a href="{{ url_for('.delete_category', id=category.id) }}">delete</a>
     {% endfor %}
     </table>

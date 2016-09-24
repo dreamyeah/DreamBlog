@@ -7,6 +7,8 @@ from blog.utils import requires_login, requires_admin, \
      format_creole, request_wants_json
 from blog.database import Category, Post, Comment, db_session
 
+from datetime import datetime
+
 mod = Blueprint('posts', __name__, url_prefix='/posts')
 
 
@@ -88,6 +90,8 @@ def edit_comment(id):
         else:
             comment.title = form['title']
             comment.text = form['text']
+            print id
+            comment.post_id = id
             db_session.commit()
             flash(u'Comment was updated.')
             return redirect(comment.post.url)
@@ -129,6 +133,7 @@ def edit(id):
                     post.title = form['title']
                     post.body = form['body']
                     post.category = category
+                    post.update_time=datetime.utcnow()
                     db_session.commit()
                     flash(u'Your post was modified')
                     return redirect(post.url)

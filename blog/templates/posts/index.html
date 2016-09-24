@@ -1,0 +1,47 @@
+{% extends "posts/layout.html" %}
+{% block title %}Posts Archive{% endblock %}
+{% block body %}
+<div>
+  <p>
+    Welcome to the Flask post archive.  This is the place where anyone
+    can drop helpful pieces of code for others to use.
+  {% if g.user %}
+  <p>
+    You're signed in as “<span title="{{ g.user.openid }}">{{ g.user.name
+    }}</span>”.  You can <a href="{{ url_for('general.logout')
+    }}">sign out</a> here after you're done if you want.  If you want to
+    change your OpenID login or display name, head over to the
+    <a href="{{ url_for('general.profile') }}">profile</a>.
+  {% else %}
+  <p>
+    In order to add posts to this page or to add comments, all you need
+    is an <a href=http://en.wikipedia.org/wiki/OpenID>OpenID</a> account.
+    You can <a href="{{ url_for('general.login') }}">sign in</a> here.
+  {% endif %}
+  <p>
+    Want to share something?  Then add a
+    <a href="{{ url_for('.new') }}">new post</a>.  Can't find a post?
+    Try the <a href="{{ url_for('general.search') }}">search</a>.
+  <h2>Posts by Category</h2>
+  <ul>
+  {% for category in categories %}
+    <li><a href="{{ category.url }}">{{ category.name }}</a> ({{ category.count }})
+  {% endfor %}
+  </ul>
+  {% if recent %}
+  <h2>Recently Added</h2>
+  <ul>
+  {% for post in recent %}
+    <li><a href="{{ post.url }}">{{ post.title }}</a> in
+      <a href="{{ post.category.url }}">{{ post.category.name }}</a>
+  {% endfor %}
+  </ul>
+  {% endif %}
+  {% if g.user.is_admin %}
+  <h2>Admin Tools</h2>
+  <ul>
+    <li><a href="{{ url_for('.manage_categories') }}">Manage categories</a>
+  </ul>
+  {% endif %}
+ </div>
+{% endblock %}
