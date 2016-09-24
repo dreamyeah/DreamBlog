@@ -41,11 +41,13 @@ from blog.views import community
 from blog.views import mailinglist
 from blog.views import snippets
 from blog.views import extensions
+from blog.views import posts
 app.register_blueprint(general.mod)
 app.register_blueprint(community.mod)
 app.register_blueprint(mailinglist.mod)
 app.register_blueprint(snippets.mod)
 app.register_blueprint(extensions.mod)
+app.register_blueprint(posts.mod)
 
 from blog.database import User, db_session
 from blog import utils

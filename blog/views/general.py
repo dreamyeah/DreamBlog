@@ -3,8 +3,8 @@ from flask import Blueprint, render_template, session, redirect, url_for, \
 from flask_openid import COMMON_PROVIDERS
 from blog import oid
 from blog.search import search as perform_search
-from blog.utils import requires_login, request_wants_json
-from blog.database import db_session, User
+from blog.utils import requires_login, request_wants_json,format_creole
+from blog.database import db_session, User, Post, Category
 from blog.listings.releases import releases
 import os
 import re
@@ -162,10 +162,41 @@ def uedit():
     )
     
 @mod.route('/create')
+@requires_login
 def create():
-    return render_template(
-        'blog/create.html'
-    )
+    category_id = None
+    preview = None
+    print "1111111111111111"
+    if 'category' in request.args:
+        rv = Category.query.filter_by(slug=request.args['category']).first()
+        if rv is not None:
+            category_id = rv.id
+    if request.method == 'POST':
+        print "5555555"
+        category_id = request.form.get('category', type=int)
+        if 'preview' in request.form:
+            preview = format_creole(request.form['body'])
+        else:
+            title = request.form['title']
+            body = request.form['body']
+            print "22222222222"
+            if not body:
+                flash(u'Error: you have to enter a snippet')
+            else:
+                category = Category.query.get(category_id)
+                if category is not None:
+                    posts = Post(g.user, category, title, body, category)
+                    db_session.add(posts)
+                    db_session.commit()
+                    flash(u'Your snippet was added')
+                    print "tttttttttttt"
+                    return redirect(posts.url)
+    return render_template('blog/create.html',
+        categories=Category.query.order_by(Category.name).all(),
+        active_category=category_id, preview=preview)
+    
+    
+    
 @mod.route('/upload/', methods=['GET', 'POST', 'OPTIONS'])
 def upload():
 
@@ -285,5 +316,6 @@ def upload():
 @mod.route('/addpost', methods=['POST'])
 def addpost():
     if request.method == 'POST':
-
+        db_session.add(Post(title=request.form['title'], body=request.form['content'], category_id=request.form['category'], post_name=request.form['postname']))
+        db_session.commit()
         return render_template('blog/create2.html',content=request.form['content'])

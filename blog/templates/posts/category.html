@@ -1,0 +1,23 @@
+{% extends "posts/layout.html" %}
+{% block title %}{{ category.name }}{% endblock %}
+{% block body %}
+  <h2>{{ category.name }}</h2>
+  {% if category.count > 3 %}
+  <p>
+    Here you can find all {{ category.count }} posts of this
+    category.  You can also
+  {% else %}
+    This category is pretty empty so far.  Why not
+  {% endif %}
+    <a href="{{ url_for('posts.new',
+      category=category.slug) }}">add a new one</a>.
+  {% if posts %}
+  <h3>Posts in this Category:</h3>
+  <ul>
+  {% for post in posts %}
+    <li><a href="{{ post.url }}">{{ post.title }}</a>
+        <small>({{ post.pub_date|dateformat }})</small>
+  {% endfor %}
+  </ul>
+  {% endif %}
+{% endblock %}

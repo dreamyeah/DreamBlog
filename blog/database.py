@@ -123,6 +123,62 @@ class Snippet(Model, search.Indexable):
         from blog.utils import format_creole
         return format_creole(self.body)
 
+class Post(Model, search.Indexable):
+    __tablename__ = 'posts'
+    id = Column('id', Integer, primary_key=True)
+    author_id = Column(Integer, ForeignKey('users.user_id'))
+    category_id = Column(Integer, ForeignKey('categories.category_id'))
+    title = Column(String(200))
+    body = Column(String(4000))
+    create_time = Column(DateTime)
+    update_time = Column(DateTime)
+
+    author = relation(User, backref=backref('posts', lazy='dynamic'))
+    category = relation(Category, backref=backref('posts', lazy='dynamic'))
+
+    search_document_kind = 'posts'
+
+    def __init__(self, author, title, body, category):
+        self.author = author
+        self.title = title
+        self.body = body
+        self.category = category
+        self.create_time = datetime.utcnow()
+        self.update_time = datetime.utcnow()
+        
+
+    def to_json(self):
+        return dict(id=self.id, title=self.title,
+                    body=unicode(self.rendered_body),
+                    create_time=http_date(self.create_time),
+                    update_time=http_date(self.update_time),
+                    comments=[c.to_json() for c in self.comments],
+                    author=self.author.to_json(),
+                    category=self.category.slug)
+
+    def get_search_document(self):
+        return dict(
+            id=unicode(self.id),
+            title=self.title,
+            keywords=[self.category.name],
+            content=self.body
+        )
+
+    @classmethod
+    def describe_search_result(cls, result):
+        obj = cls.query.get(int(result['id']))
+        if obj is not None:
+            text = obj.rendered_body.striptags()
+            return Markup(result.highlights('content', text=text)) or None
+
+    @property
+    def url(self):
+        return url_for('posts.show', id=self.id)
+
+    @property
+    def rendered_body(self):
+        from blog.utils import format_creole
+        return format_creole(self.body)
 
 class Comment(Model):
     __tablename__ = 'comments'
