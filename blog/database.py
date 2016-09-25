@@ -8,6 +8,7 @@ from werkzeug import cached_property, http_date
 
 from flask import url_for, Markup
 from blog import app, search
+from sqlalchemy.dialects.mysql.types import LONGTEXT, TIMESTAMP
 
 engine = create_engine(app.config['DATABASE_URI'],
                        convert_unicode=True,
@@ -129,9 +130,12 @@ class Post(Model, search.Indexable):
     author_id = Column(Integer, ForeignKey('users.user_id'))
     category_id = Column(Integer, ForeignKey('categories.category_id'))
     title = Column(String(200))
-    body = Column(String(4000))
-    create_time = Column(DateTime)
-    update_time = Column(DateTime)
+#     body = Column(String(40000))
+    body = Column(LONGTEXT())
+#     create_time = Column(DateTime)
+#     update_time = Column(DateTime)
+    create_time = Column(TIMESTAMP)
+    update_time = Column(TIMESTAMP)
 
     author = relation(User, backref=backref('posts', lazy='dynamic'))
     category = relation(Category, backref=backref('posts', lazy='dynamic'))
@@ -193,7 +197,7 @@ class Comment(Model):
     author = relation(User, backref=backref('comments', lazy='dynamic'))
 
     def __init__(self, post, author, title, text):
-        self.snippet = post
+        self.post = post
         self.author = author
         self.title = title
         self.text = text

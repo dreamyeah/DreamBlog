@@ -120,7 +120,7 @@ def requires_admin(f):
 
 
 def format_datetime(dt):
-    return dt.strftime('%Y-%m-%d @ %H:%M')
+    return dt.strftime('%Y-%m-%d %H:%M')
 
 
 def format_date(dt):

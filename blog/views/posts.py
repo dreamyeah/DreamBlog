@@ -9,6 +9,7 @@ from blog.database import Category, Post, Comment, db_session
 
 from datetime import datetime
 
+
 mod = Blueprint('posts', __name__, url_prefix='/posts')
 
 
@@ -49,6 +50,11 @@ def new():
         categories=Category.query.order_by(Category.name).all(),
         active_category=category_id, preview=preview)
 
+@mod.route('/list')
+def list():
+    posts = Post.query.order_by(Post.update_time.desc()).limit(5).all()
+    return render_template('posts/list.html',posts=posts)
+
 
 @mod.route('/<int:id>/', methods=['GET', 'POST'])
 def show(id):
@@ -65,6 +71,8 @@ def show(id):
             db_session.commit()
             flash(u'Your comment was added')
             return redirect(post.url)
+        else:
+            flash(u'Your comment was not added')
     return render_template('posts/show.html', post=post)
 
 
@@ -90,8 +98,6 @@ def edit_comment(id):
         else:
             comment.title = form['title']
             comment.text = form['text']
-            print id
-            comment.post_id = id
             db_session.commit()
             flash(u'Comment was updated.')
             return redirect(comment.post.url)
